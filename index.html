@@ -495,7 +495,14 @@ If you're interested in collaborating on cutting-edge research in computer visio
                 <div class="error-message"></div>
                 <div class="sent-message">Your message has been sent. Thank you!</div>
               </div>
-              <div class="text-center"><button type="submit">Send Message</button></div>
+              <div class="text-center">
+                <button type="submit" id="submitButton">
+                  <span class="button-text">Send Message</span>
+                  <span class="button-loading" style="display: none;">
+                    <i class="bi bi-arrow-repeat"></i> Sending...
+                  </span>
+                </button>
+              </div>
             </form>
 
           </div>
@@ -555,12 +562,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadingDiv = form.querySelector('.loading');
     const errorDiv = form.querySelector('.error-message');
     const sentDiv = form.querySelector('.sent-message');
+    const submitButton = form.querySelector('#submitButton');
+    const buttonText = submitButton.querySelector('.button-text');
+    const buttonLoading = submitButton.querySelector('.button-loading');
+
+    // Hide all status messages by default
+    loadingDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    sentDiv.style.display = 'none';
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Show loading
-        loadingDiv.style.display = 'block';
+        // Disable button and show loading state
+        submitButton.disabled = true;
+        buttonText.style.display = 'none';
+        buttonLoading.style.display = 'inline-block';
+        
+        // Hide any previous messages
         errorDiv.style.display = 'none';
         sentDiv.style.display = 'none';
 
@@ -573,7 +592,6 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            loadingDiv.style.display = 'none';
             if (data.ok) {
                 sentDiv.style.display = 'block';
                 form.reset();
@@ -583,9 +601,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
-            loadingDiv.style.display = 'none';
             errorDiv.textContent = "An error occurred. Please try again.";
             errorDiv.style.display = 'block';
+        })
+        .finally(() => {
+            // Re-enable button and hide loading state
+            submitButton.disabled = false;
+            buttonText.style.display = 'inline-block';
+            buttonLoading.style.display = 'none';
         });
     });
 });
